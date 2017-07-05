@@ -13,14 +13,10 @@ class LoginPage(BasePage):
     _locator = LoginPageLocators
 
     def input_nanaco_number(self, nanaco_number):
-        if len(nanaco_number) != 16:
-            raise Exception
         element = self.driver.find_element(*self._locator.INPUT_NANACO_NUMBER)
         element.send_keys(nanaco_number)
 
     def input_card_number(self, card_number):
-        if len(card_number) != 7:
-            raise Exception
         element = self.driver.find_element(*self._locator.INPUT_CARD_NUMBER)
         element.send_keys(card_number)
 
@@ -284,11 +280,3 @@ class CreditChargeErrorPage(BasePage):
     def get_alert_msg(self):
         element = self.driver.find_element(*self._locator.ALERT)
         return element.text
-
-
-class PyNanacoError(Exception):
-    pass
-
-
-class PyNanacoCreditChargeError(PyNanacoError):
-    pass

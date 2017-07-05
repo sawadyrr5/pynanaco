@@ -25,7 +25,7 @@ class PyNanaco:
             self.current_page.input_card_number(card_number)
             self.current_page = self.current_page.click_login_by_card()
 
-    def login_credit_charge(self, password):
+    def login_credit_charge(self, password: str = None):
         if self.is_current(MenuPage):
             self.current_page = self.current_page.click_credit_charge()
 
@@ -94,8 +94,10 @@ class PyNanaco:
                 pass
 
         if self.is_current(CreditChargeInputPage):
-            if 30000 < value:
+            if value >= 35000:
                 charge = 30000
+            elif 30000 < value < 35000:
+                charge = value - 5000
             else:
                 charge = value
 

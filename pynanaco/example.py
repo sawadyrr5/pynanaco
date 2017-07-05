@@ -30,14 +30,14 @@ my_profile = dict(
 
 def example_charge():
     nanaco = PyNanaco()
-    nanaco.login(**my_nanaco)
+    nanaco.login_by_card(**my_nanaco)
     nanaco.login_credit_charge('set_credit_charge_password_here')
     nanaco.charge(10000)
 
 
 def example_set():
     nanaco = PyNanaco()
-    nanaco.login(**my_nanaco)
+    nanaco.login_by_card(**my_nanaco)
     nanaco.login_credit_charge(None)
     nanaco.set(
         credit=my_card,
@@ -48,7 +48,7 @@ def example_set():
 
 def example_cancel():
     nanaco = PyNanaco()
-    nanaco.login(**my_nanaco)
+    nanaco.login_by_card(**my_nanaco)
     nanaco.login_credit_charge('set_credit_charge_password_here')
     nanaco.cancel()
 

@@ -38,7 +38,7 @@ def example_charge():
 def example_set():
     nanaco = PyNanaco()
     nanaco.login_by_card(**my_nanaco)
-    nanaco.login_credit_charge(None)
+    nanaco.login_credit_charge()
     nanaco.set(
         credit=my_card,
         profile=my_profile,

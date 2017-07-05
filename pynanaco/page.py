@@ -1,13 +1,4 @@
 # -*- coding: utf-8 -*-
-# (
-#     LoginPageLocators, AfterLogoutPageLocators, BaseMenuPageLocators, MenuPageLocators,
-#     CreditChargeGuidePageLocators, CreditChargePasswordAuthPageLocators, CreditChargeMainPageLocators,
-#     CreditChargeRegPageLocators, CreditChargeRegInput1PageLocators, CreditChargeRegInput2PageLocators,
-#     CreditChargeRegConfirmPageLocators, SecurePageLocators, CreditChargeRegSucceedPageLocators,
-#     CreditChargeInputPageLocators, CreditChargeConfirmPageLocators, CreditChargeSucceedPageLocators,
-#     CreditChargeCancelInputPageLocators, CreditChargeCancelConfirmPageLocators, CreditChargeCancelSucceedPageLocators,
-#     CreditChargeErrorPageLocators
-# )
 from datetime import datetime
 
 from pynanaco.locators import *
@@ -128,7 +119,7 @@ class CreditChargeRegInput1Page(BaseMenuPage):
         element = self.driver.find_element(*self._locator.INPUT_EXPIRE_MONTH)
         element.send_keys(expire_month)
         element = self.driver.find_element(*self._locator.INPUT_EXPIRE_YEAR)
-        element.send_keys(expire_year)
+        element.send_keys(expire_year[2:4])
 
         element = self.driver.find_element(*self._locator.INPUT_CODE)
         element.send_keys(code)

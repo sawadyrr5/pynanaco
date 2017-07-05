@@ -4,7 +4,15 @@ from datetime import datetime
 from pynanaco.core import PyNanaco
 
 # set your nanaco card information.
+# (credit charge ready.)
 my_nanaco = dict(
+    nanaco_number='xxxxxxxxxxxxxxxx',
+    card_number='yyyyyyy'
+)
+
+# set your nanaco card information.
+# (credit charge not ready.)
+my_nanaco2 = dict(
     nanaco_number='xxxxxxxxxxxxxxxx',
     card_number='yyyyyyy'
 )
@@ -37,7 +45,7 @@ def example_charge():
 
 def example_set():
     nanaco = PyNanaco()
-    nanaco.login_by_card(**my_nanaco)
+    nanaco.login_by_card(**my_nanaco2)
     nanaco.login_credit_charge()
     nanaco.set(
         credit=my_card,

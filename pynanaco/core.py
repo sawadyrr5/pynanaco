@@ -140,3 +140,11 @@ class PyNanaco:
 
     def quit(self):
         self.driver.quit()
+
+
+class PyNanacoError(Exception):
+    pass
+
+
+class PyNanacoCreditChargeError(PyNanacoError):
+    pass

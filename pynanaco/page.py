@@ -66,6 +66,14 @@ class MenuPage(BaseMenuPage):
         element.click()
         return CreditChargePasswordAuthPage(self.driver)
 
+    def text_balance_card(self):
+        element = self.driver.find_element(*self._locator.TEXT_BALANCE_CARD)
+        return int(element.text.replace('円', '').replace(',', ''))
+
+    def text_balance_center(self):
+        element = self.driver.find_element(*self._locator.TEXT_BALANCE_CENTER)
+        return int(element.text.replace('円', '').replace(',', ''))
+
 
 class CreditChargeGuidePage(BaseMenuPage):
     _locator = CreditChargeGuidePageLocators
@@ -206,6 +214,66 @@ class CreditChargeMainPage(BaseMenuPage):
         element.click()
         return CreditChargeCancelInputPage(self.driver)
 
+    def click_history(self):
+        element = self.driver.find_element(*self._locator.BUTTON_HISTORY)
+        element.click()
+        return CreditChargeHistoryPage(self.driver)
+
+    def click_change_password(self):
+        element = self.driver.find_element(*self._locator.BUTTON_CHANGE_CREDIT_CARD)
+        element.click()
+        return CreditChargePasswordChangeInputPage(self.driver)
+
+    def click_change_credit_card(self):
+        element = self.driver.find_element(*self._locator.BUTTON_CHANGE_CREDIT_CARD)
+        element.click()
+        return CreditChargeRegInput1Page(self.driver)
+
+    def text_credit_card(self):
+        element = self.driver.find_element(*self._locator.TEXT_CREDIT_CARD)
+        return element.text.replace('登録クレジットカード：', '')
+
+
+class CreditChargePasswordChangeInputPage(BaseMenuPage):
+    _locator = CreditChargePasswordChangeInputPageLocators
+
+    def input_old_password(self, password):
+        element = self.driver.find_element(*self._locator.INPUT_OLD_PASSWORD)
+        element.send_keys(password)
+
+    def input_new_password(self, password):
+        element = self.driver.find_element(*self._locator.INPUT_NEW_PASSWORD)
+        element.send_keys(password)
+
+        element = self.driver.find_element(*self._locator.INPUT_NEW_PASSWORD_CONF)
+        element.send_keys(password)
+
+    def click(self):
+        element = self.driver.find_element(*self._locator.BUTTON_CONFIRM)
+        element.click()
+        return CreditChargePasswordChangeSucceedPage(self.driver)
+
+
+class CreditChargePasswordChangeSucceedPage(BaseMenuPage):
+    _locator = CreditChargePasswordChangeSucceedPageLocators
+
+    def click_confirm(self):
+        element = self.driver.find_element(*self._locator.BUTTON_BACK_TO_CREDIT_CHARGE_TOP)
+        element.click()
+        return CreditChargeMainPage(self.driver)
+
+
+class CreditChargeHistoryPage(BaseMenuPage):
+    _locator = CreditChargeHistoryPageLocators
+
+    def text_charged_count(self):
+        element = self.driver.find_element(*self._locator.TEXT_CHARGED_COUNT)
+        return element.text.replace('回', '')
+
+    def text_charged_amount(self):
+        element = self.driver.find_element(*self._locator.TEXT_CHARGED_AMOUNT)
+        return element.text.replace('円', '').replace(',', '')
+
 
 class CreditChargeInputPage(BaseMenuPage):
     _locator = CreditChargeInputPageLocators
@@ -238,7 +306,7 @@ class CreditChargeSucceedPage(BaseMenuPage):
     _locator = CreditChargeSucceedPageLocators
 
     def click_back_to_top(self):
-        element = self.driver.find_element(*self._locator.BUTTON_BACK_TO_TOP)
+        element = self.driver.find_element(*self._locator.BUTTON_BACK_TO_CREDIT_CHARGE_TOP)
         element.click()
         return CreditChargeMainPage(self.driver)
 

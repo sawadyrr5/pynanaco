@@ -22,6 +22,8 @@ class BaseMenuPageLocators:
 class MenuPageLocators(BaseMenuPageLocators):
     BUTTON_CREDIT_CHARGE = (By.CSS_SELECTOR, '#credit > a')
     TOP_MENU_CREDIT_CHARGE = (By.CSS_SELECTOR, '#memberNavi01 > a')
+    TEXT_BALANCE_CARD = (By.CSS_SELECTOR, '#memberInfoFull > div:nth-child(1) > div.moneyBox > div.fRight > p')
+    TEXT_BALANCE_CENTER = (By.CSS_SELECTOR, '#memberInfoFull > div:nth-child(2) > div.moneyBox > div.fRight > p')
 
 
 class CreditChargeGuidePageLocators(BaseMenuPageLocators):
@@ -79,7 +81,28 @@ class CreditChargeRegSucceedPageLocators(BaseMenuPageLocators):
 
 class CreditChargeMainPageLocators(BaseMenuPageLocators):
     BUTTON_CHARGE = (By.CSS_SELECTOR, '#charge01 > a')
+    BUTTON_HISTORY = (By.CSS_SELECTOR, '#charge02 > a')
+    BUTTON_CHANGE_PASSWORD = (By.CSS_SELECTOR, '#charge03 > a')
+    BUTTON_CHANGE_CREDIT_CARD = (By.CSS_SELECTOR, '#charge04 > a')
     BUTTON_CANCEL = (By.CSS_SELECTOR, '#hedge > li:nth-child(3) > a')
+
+    TEXT_CREDIT_CARD = (By.CSS_SELECTOR, '#contents > div.pageTitle > p')
+
+
+class CreditChargeHistoryPageLocators(BaseMenuPageLocators):
+    TEXT_CHARGED_COUNT = (By.CSS_SELECTOR, '#wakuDesign > tbody > tr:nth-child(2) > td:nth-child(2)')
+    TEXT_CHARGED_AMOUNT = (By.CSS_SELECTOR, '#wakuDesign > tbody > tr:nth-child(2) > td:nth-child(4)')
+
+
+class CreditChargePasswordChangeInputPageLocators(BaseMenuPageLocators):
+    INPUT_OLD_PASSWORD = (By.NAME, 'OLD_CRDT_CHEG_PWD')
+    INPUT_NEW_PASSWORD = (By.NAME, 'NEW_CRDT_CHEG_PWD')
+    INPUT_NEW_PASSWORD_CONF = (By.NAME, 'NEW_CRDT_CHEG_PWD_CONF')
+    BUTTON_CONFIRM = (By.NAME, 'ACT_ACBS_do_CRDT_PWD_CHNG_INPUT')
+
+
+class CreditChargePasswordChangeSucceedPageLocators(BaseMenuPageLocators):
+    BUTTON_BACK_TO_CREDIT_CHARGE_TOP = (By.CSS_SELECTOR, '#contents > div.tbl730C > div.footbtnArea > a > img')
 
 
 class CreditChargeInputPageLocators(BaseMenuPageLocators):
@@ -93,7 +116,7 @@ class CreditChargeConfirmPageLocators(BaseMenuPageLocators):
 
 
 class CreditChargeSucceedPageLocators(BaseMenuPageLocators):
-    BUTTON_BACK_TO_TOP = (By.CSS_SELECTOR, '#mainTbl > div > div > a > img')
+    BUTTON_BACK_TO_CREDIT_CHARGE_TOP = (By.CSS_SELECTOR, '#mainTbl > div > div > a > img')
 
 
 class CreditChargeCancelInputPageLocators(BaseMenuPageLocators):

@@ -1,8 +1,9 @@
 # PyNanaco
 Operating nanaco (electric money) via python.
 
-## Status
-development in progress.
+## How to use
+
+[pythonでnanacoクレジットチャージできるモジュールPyNanacoを作った](http://qiita.com/sawadybomb/items/ff3c8283ae80165e7b25)
 
 ## Required
 

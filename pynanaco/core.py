@@ -9,6 +9,10 @@ from pynanaco.page import *
 
 class PyNanaco:
     _home = 'https://www.nanaco-net.jp/pc/emServlet'
+    _MAX_TOTAL_CHARGE_AMOUNT = 50000
+    _MIN_TOTAL_CHARGE_AMOUNT = 5000
+    _MAX_PER_CHARGE_AMOUNT = 30000
+    _UNIT_CHARGE_AMOUNT = 1000
 
     def __init__(self):
         self.driver = selenium.webdriver.Chrome('./chromedriver.exe')
@@ -143,59 +147,54 @@ class PyNanaco:
         クレジットチャージを行う.
         :param value:
         """
-        charge = 0
-        if value < 5000:
+        if value < self._MIN_TOTAL_CHARGE_AMOUNT:
             raise PyNanacoCreditChargeError('5000円以上にしてください.')
-        elif value > 50000:
+        elif value > self._MAX_TOTAL_CHARGE_AMOUNT:
             raise PyNanacoCreditChargeError('50000円以下にしてください.')
-        elif value % 1000 != 0:
+        elif value % self._UNIT_CHARGE_AMOUNT != 0:
             raise PyNanacoCreditChargeError('1000円単位にしてください.')
 
-        if self.is_current(CreditChargeMainPage):
-            self.current_page = self.current_page.click_charge()
+        if value <= self._MAX_PER_CHARGE_AMOUNT:
+            charges = [value]
+        elif value <= self._MAX_PER_CHARGE_AMOUNT + self._MIN_TOTAL_CHARGE_AMOUNT:
+            charges = [value - self._MIN_TOTAL_CHARGE_AMOUNT, self._MIN_TOTAL_CHARGE_AMOUNT]
+        else:
+            charges = [self._MAX_PER_CHARGE_AMOUNT, value - self._MAX_PER_CHARGE_AMOUNT]
 
-            # PGSE35
-            try:
-                page = CreditChargeErrorPage(self.driver)
-                raise PyNanacoCreditChargeError(page.get_alert_msg())
-            except selenium.common.exceptions.NoSuchElementException:
-                pass
+        for charge in charges:
+            if self.is_current(CreditChargeMainPage):
+                self.current_page = self.current_page.click_charge()
 
-        if self.is_current(CreditChargeInputPage):
-            if value >= 35000:
-                charge = 30000
-            elif 30000 < value < 35000:
-                charge = value - 5000
-            else:
-                charge = value
+                # PGSE35
+                try:
+                    page = CreditChargeErrorPage(self.driver)
+                    raise PyNanacoCreditChargeError(page.get_alert_msg())
+                except selenium.common.exceptions.NoSuchElementException:
+                    pass
 
-            self.current_page.input_amount(charge)
-            self.current_page = self.current_page.click_next()
+            if self.is_current(CreditChargeInputPage):
+                self.current_page.input_amount(charge)
+                self.current_page = self.current_page.click_next()
 
-            # P30185
-            try:
-                page = CreditChargeErrorPage(self.driver)
-                raise PyNanacoCreditChargeError(page.get_alert_msg())
-            except selenium.common.exceptions.NoSuchElementException:
-                pass
+                # P30185
+                try:
+                    page = CreditChargeErrorPage(self.driver)
+                    raise PyNanacoCreditChargeError(page.get_alert_msg())
+                except selenium.common.exceptions.NoSuchElementException:
+                    pass
 
-        if self.is_current(CreditChargeConfirmPage):
-            self.current_page = self.current_page.click_confirm()
+            if self.is_current(CreditChargeConfirmPage):
+                self.current_page = self.current_page.click_confirm()
 
-            # PGSE22
-            try:
-                page = CreditChargeErrorPage(self.driver)
-                raise PyNanacoCreditChargeError(page.get_alert_msg())
-            except selenium.common.exceptions.NoSuchElementException:
-                pass
+                # PGSE22
+                try:
+                    page = CreditChargeErrorPage(self.driver)
+                    raise PyNanacoCreditChargeError(page.get_alert_msg())
+                except selenium.common.exceptions.NoSuchElementException:
+                    pass
 
-        if self.is_current(CreditChargeSucceedPage):
-            self.current_page = self.current_page.click_back_to_top()
-
-            value = value - charge
-
-            if value > 0:
-                self.charge(value)
+            if self.is_current(CreditChargeSucceedPage):
+                self.current_page = self.current_page.click_back_to_top()
 
     def cancel(self):
         """

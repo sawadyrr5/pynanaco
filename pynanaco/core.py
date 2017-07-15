@@ -25,21 +25,43 @@ class PyNanaco:
         self._charged_amount = None
 
     def is_current(self, page):
+        """
+        現在のページクラスを取得する
+        :param page:
+        :return:
+        """
         return isinstance(self.current_page, page)
 
-    def login_by_card(self, nanaco_number, card_number):
+    def login(self, nanaco_number: str, card_number: str = None, password: str = None):
+        """
+        カード記載の番号またはパスワードでログインする
+        :param nanaco_number:
+        :param card_number:
+        :param password:
+        """
         if self.is_current(LoginPage):
-            self.current_page.input_nanaco_number(nanaco_number)
-            self.current_page.input_card_number(card_number)
-            self._nanaco_number = nanaco_number
-            self._card_number = card_number
-            self.current_page = self.current_page.click_login_by_card()
+            if nanaco_number:
+                self.current_page.input_nanaco_number(nanaco_number)
+                self._nanaco_number = nanaco_number
+
+            if card_number:
+                self.current_page.input_card_number(card_number)
+                self.current_page = self.current_page.click_login_by_card()
+            elif password:
+                self.current_page.input_login_password(password)
+                self.current_page = self.current_page.click_login_by_password()
 
         if self.is_current(MenuPage):
             self._balance_card = self.current_page.text_balance_card()
             self._balance_center = self.current_page.text_balance_center()
+            return self._nanaco_number
 
     def login_credit_charge(self, password: str = None):
+        """
+        クレジットチャージ画面にログインする.
+        :param password:
+        :return:
+        """
         if self.is_current(MenuPage):
             self.current_page = self.current_page.click_credit_charge()
 
@@ -53,8 +75,31 @@ class PyNanaco:
 
         if self.is_current(CreditChargeMainPage):
             self._registered_credit_card = self.current_page.text_credit_card()
+            return self._registered_credit_card
 
-    def set(self, credit: dict, profile: dict):
+    def history(self):
+        """
+        クレジットチャージ実行回数, 金額を取得する.
+        :return:
+        """
+        if self.is_current(CreditChargeMainPage):
+            self.current_page = self.current_page.click_history()
+
+        if self.is_current(CreditChargeHistoryPage):
+            self._charged_count = self.current_page.text_charged_count()
+            self._charged_amount = self.current_page.text_charged_amount()
+            self.driver.back()
+            return dict(
+                charged_count=self._charged_count,
+                charged_amount=self._charged_amount
+            )
+
+    def register(self, credit: dict, profile: dict):
+        """
+        クレジットカードを登録する.
+        :param credit:
+        :param profile:
+        """
         security_code = credit.pop('security_code')
 
         if self.is_current(CreditChargeGuidePage):
@@ -94,6 +139,10 @@ class PyNanaco:
             self.current_page.click_back_to_home()
 
     def charge(self, value):
+        """
+        クレジットチャージを行う.
+        :param value:
+        """
         charge = 0
         if value < 5000:
             raise PyNanacoCreditChargeError('5000円以上にしてください.')
@@ -149,6 +198,9 @@ class PyNanaco:
                 self.charge(value)
 
     def cancel(self):
+        """
+        設定されているクレジットカードを解除する.
+        """
         if self.is_current(CreditChargeMainPage):
             self.current_page = self.current_page.click_cancel()
 
@@ -161,22 +213,24 @@ class PyNanaco:
 
         if self.is_current(CreditChargeCancelSucceedPage):
             self.current_page = self.current_page.click_back_to_home()
+            return True
 
     def logout(self):
+        """
+        ログアウトする.
+        :return:
+        """
         if self.is_current(BaseMenuPage):
             self.current_page.click_logout()
 
+        if self.is_current(AfterLogoutPage):
+            return True
+
     def quit(self):
+        """
+        ブラウザを終了する.
+        """
         self.driver.quit()
-
-    def history(self):
-        if self.is_current(CreditChargeMainPage):
-            self.current_page = self.current_page.click_history()
-
-        if self.is_current(CreditChargeHistoryPage):
-            self._charged_count = self.current_page.text_charged_count()
-            self._charged_amount = self.current_page.text_charged_amount()
-            self.driver.back()
 
     @property
     def nanaco_number(self):
@@ -197,14 +251,6 @@ class PyNanaco:
     @property
     def credit_card(self):
         return self._registered_credit_card
-
-    @property
-    def charged_count(self):
-        return self._charged_count
-
-    @property
-    def charged_amount(self):
-        return self._charged_amount
 
 
 class PyNanacoError(Exception):

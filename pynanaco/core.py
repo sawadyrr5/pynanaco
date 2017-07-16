@@ -135,6 +135,7 @@ class PyNanaco:
             try:
                 self.current_page.input_secure_code(security_code)
                 self.current_page.click_send()
+                sleep(5)
             except selenium.common.exceptions.NoSuchElementException:
                 page = CreditChargeErrorPage(self.driver)
                 raise PyNanacoCreditChargeError(page.get_alert_msg())
@@ -148,11 +149,14 @@ class PyNanaco:
         :param value:
         """
         if value < self._MIN_TOTAL_CHARGE_AMOUNT:
-            raise PyNanacoCreditChargeError('5000円以上にしてください.')
+            fmt = dict(amount=self._MIN_TOTAL_CHARGE_AMOUNT)
+            raise PyNanacoCreditChargeError('{amount}円以上にしてください.'.format(**fmt))
         elif value > self._MAX_TOTAL_CHARGE_AMOUNT:
-            raise PyNanacoCreditChargeError('50000円以下にしてください.')
+            fmt = dict(amount=self._MAX_TOTAL_CHARGE_AMOUNT)
+            raise PyNanacoCreditChargeError('{amount}円以下にしてください.'.format(**fmt))
         elif value % self._UNIT_CHARGE_AMOUNT != 0:
-            raise PyNanacoCreditChargeError('1000円単位にしてください.')
+            fmt = dict(amount=self._UNIT_CHARGE_AMOUNT)
+            raise PyNanacoCreditChargeError('{amount}円単位にしてください.'.format(**fmt))
 
         if value <= self._MAX_PER_CHARGE_AMOUNT:
             charges = [value]

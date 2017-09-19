@@ -1,5 +1,11 @@
-# PyNanaco
+# About this library
 Operating nanaco (electric money) via python.
+
+## How to install
+
+```
+pip install git+https://github.com/sawadyrr5/PyNanaco
+```
 
 ## How to use
 

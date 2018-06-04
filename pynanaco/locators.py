@@ -10,6 +10,8 @@ class LoginPageLocators:
     BUTTON_LOGIN_BY_CARD = (By.NAME, 'ACT_ACBS_do_LOGIN2')
     BUTTON_LOGIN_BY_PWD = (By.NAME, 'ACT_ACBS_do_LOGIN1')
 
+    TEXT_LOGIN_ERROR = (By.CSS_SELECTOR, '#box2Right > span')
+
 
 class AfterLogoutPageLocators:
     BUTTON_BACK_TO_LOGIN = (By.CSS_SELECTOR, '#contents > div > div:nth-child(3) > a > img')
@@ -17,6 +19,7 @@ class AfterLogoutPageLocators:
 
 class BaseMenuPageLocators:
     BUTTON_LOGOUT = (By.CSS_SELECTOR, '#logout > a')
+    LOGO = (By.CSS_SELECTOR, '#nanacoMember > a:nth-child(1)')
 
 
 class MenuPageLocators(BaseMenuPageLocators):
@@ -71,8 +74,15 @@ class CreditChargeRegConfirmPageLocators(BaseMenuPageLocators):
 
 
 class SecurePageLocators:
-    INPUT_SECURE_CODE = (By.NAME, 'Password')
-    BUTTON_SEND = (By.ID, 'sendButton')
+    TITLE = (By.CSS_SELECTOR, 'head > title')
+
+    # jcb
+    INPUT_SECURE_CODE_JCB = (By.NAME, 'Password')
+    BUTTON_SEND_JCB = (By.ID, 'sendButton')
+
+    # visa
+    INPUT_SECURE_CODE_VISA = (By.NAME, 'password')
+    BUTTON_SEND_VISA = (By.ID, 'send')
 
 
 class CreditChargeRegSucceedPageLocators(BaseMenuPageLocators):

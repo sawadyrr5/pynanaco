@@ -1,110 +1,203 @@
 # -*- coding: utf-8 -*-
-from time import sleep
-
-import selenium.common
-import selenium.webdriver
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 
 from pynanaco.page import *
 
+from time import sleep
+
+import logging
+from logging import getLogger, StreamHandler, Formatter
+
+logger = getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+stream_handler = StreamHandler()
+stream_handler.setLevel(logging.DEBUG)
+
+handler_format = Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+stream_handler.setFormatter(handler_format)
+
+logger.addHandler(stream_handler)
+
 
 class PyNanaco:
-    _home = 'https://www.nanaco-net.jp/pc/emServlet'
-    _MAX_TOTAL_CHARGE_AMOUNT = 50000
-    _MIN_TOTAL_CHARGE_AMOUNT = 5000
-    _MAX_PER_CHARGE_AMOUNT = 30000
-    _UNIT_CHARGE_AMOUNT = 1000
+    _HOME = 'https://www.nanaco-net.jp/pc/emServlet'
+    _CHROME_LOCATION = './bin/chromedriver.exe'
 
-    def __init__(self):
-        self.driver = selenium.webdriver.Chrome('./chromedriver.exe')
-        self.driver.get(self._home)
-        self.current_page = LoginPage(self.driver)
+    def __init__(self, nanaco_number: str, card_number: str = None, password: str = None, **kwargs):
+        options = webdriver.ChromeOptions()
 
-        self._nanaco_number = None
-        self._card_number = None
+        # headlessで動かすために必要なオプション
+        # options.add_argument("--headless")
+        # options.add_argument("--disable-gpu")
+        # options.add_argument("--window-size=1280x1696")
+        # options.add_argument("--disable-application-cache")
+        # options.add_argument("--disable-infobars")
+        # options.add_argument("--no-sandbox")
+        # options.add_argument("--hide-scrollbars")
+        # options.add_argument("--enable-logging")
+        # options.add_argument("--log-level=0")
+        # options.add_argument("--v=99")
+        # options.add_argument("--single-process")
+        # options.add_argument("--ignore-certificate-errors")
+        # options.add_argument("--homedir=/tmp")
+
+        self._driver = webdriver.Chrome(executable_path=self._CHROME_LOCATION, chrome_options=options)
+
+        self.current_page = None
+
+        self._nanaco_number = nanaco_number
+        self._card_number = card_number
+        self._password = password
+
         self._credit_charge_password = None
         self._balance_card = None
         self._balance_center = None
-        self._registered_credit_card = None
+        self._registered_creditcard = None
         self._charged_count = None
         self._charged_amount = None
 
+        self._debug_mode = None
+        if 'debug_mode' in kwargs.keys():
+            self._debug_mode = kwargs['debug_mode']
+            logger.debug("enabled debug mode.")
+
+    @property
+    def balance_card(self):
+        return self._balance_card
+
+    @property
+    def balance_center(self):
+        return self._balance_center
+
+    @property
+    def registered_creditcard(self):
+        return self._registered_creditcard
+
+    @property
+    def charged_count(self):
+        return self._charged_count
+
+    @property
+    def charged_amount(self):
+        return self._charged_amount
+
     def is_current(self, page):
         """
-        現在のページクラスを取得する
+        Get current page class.
         :param page:
         :return:
         """
         return isinstance(self.current_page, page)
 
-    def login(self, nanaco_number: str, card_number: str = None, password: str = None):
+    def login(self):
         """
-        カード記載の番号またはパスワードでログインする
-        :param nanaco_number:
-        :param card_number:
-        :param password:
+        Login by card number or password.
         """
-        if self.is_current(LoginPage):
-            if nanaco_number:
-                self.current_page.input_nanaco_number(nanaco_number)
-                self._nanaco_number = nanaco_number
+        self._driver.get(self._HOME)
+        self.current_page = LoginPage(self._driver)
 
-            if card_number:
-                self.current_page.input_card_number(card_number)
-                self.current_page = self.current_page.click_login_by_card()
-            elif password:
-                self.current_page.input_login_password(password)
-                self.current_page = self.current_page.click_login_by_password()
+        if self.is_current(LoginPage):
+            if self._nanaco_number and self._card_number:
+                self.current_page = self._login_by_number()
+            elif self._nanaco_number and self._password:
+                self.current_page = self._login_by_password()
+
+        logger.info("login")
 
         if self.is_current(MenuPage):
             self._balance_card = self.current_page.text_balance_card()
             self._balance_center = self.current_page.text_balance_center()
-            return self._nanaco_number
 
-    def login_credit_charge(self, password: str = None):
+            logger.info("balance card " + str(self._balance_card))
+            logger.info("balance center " + str(self._balance_center))
+
+    def _login_by_number(self):
         """
-        クレジットチャージ画面にログインする.
+        :return: MenuPage
+        """
+        self.current_page.input_nanaco_number(self._nanaco_number)
+        self.current_page.input_card_number(self._card_number)
+        return self.current_page.click_login_by_card()
+
+    def _login_by_password(self):
+        """
+        :return: MenuPage
+        """
+        self.current_page.input_nanaco_number(self._nanaco_number)
+        self.current_page.input_login_password(self._password)
+        return self.current_page.click_login_by_password()
+
+    def login_credit_charge(self, password: str):
+        """
+        Login credit charge menu.
         :param password:
-        :return:
         """
         if self.is_current(MenuPage):
+            self.current_page = MenuPage(self._driver)
             self.current_page = self.current_page.click_credit_charge()
+
+            # PGSE12
+            # 午前4時～5時の間は、システムメンテナンスの為クレジットチャージサービスをご利用いただけません。
+            try:
+                page = CreditChargeErrorPage(self._driver)
+                msg = page.text_alert_msg()
+
+                raise PGSE12Error(msg)
+                raise PyNanacoCreditChargeError(msg)
+            except NoSuchElementException:
+                pass
 
             # クレジットチャージ未設定の場合はパスワード入力ボックスが出ない
             try:
+                self.current_page = CreditChargePasswordAuthPage(self._driver)
                 self.current_page.input_credit_charge_password(password)
                 self.current_page = self.current_page.click_next()
-                self._credit_charge_password = password
-            except selenium.common.exceptions.NoSuchElementException:
-                self.current_page = CreditChargeGuidePage(self.driver)
+                logger.info("credit card is registered.")
+            except NoSuchElementException:
+                self.current_page = CreditChargeGuidePage(self._driver)
+                logger.info("credit card is not registered.")
 
+            # 登録済みクレジットカード情報を取得
+            if self.is_current(CreditChargeMainPage):
+                self._registered_creditcard = self.current_page.text_credit_card()
+                logger.info("registered credit card " + self._registered_creditcard)
+
+                self.current_page = self.current_page.click_history()
+
+            # チャージ累計回数と累計金額を取得
+            if self.is_current(CreditChargeHistoryPage):
+                self._charged_count = self.current_page.text_charged_count()
+                self._charged_amount = self.current_page.text_charged_amount()
+                logger.info("charged count " + self._charged_count)
+                logger.info("charged amount " + self._charged_amount)
+
+                self.current_page = CreditChargeMainPage(self._driver)
+                self._driver.back()
+
+    def register(self,
+                 number: str, expire_month: str, expire_year: str, code: str, phone: str,
+                 name: str, birth_year: str, birth_month: str, birth_day: str, password: str, mail: str, send_info: str,
+                 security_code: str
+                 ):
+        """
+        Register credit card.
+        :param number: 
+        :param expire_month: 
+        :param expire_year: 
+        :param code: 
+        :param phone: 
+        :param name: 
+        :param birth_year: 
+        :param birth_month: 
+        :param birth_day: 
+        :param password: 
+        :param mail: 
+        :param send_info: 
+        :param security_code: 
+        """
         if self.is_current(CreditChargeMainPage):
-            self._registered_credit_card = self.current_page.text_credit_card()
-            return self._registered_credit_card
-
-    def history(self):
-        """
-        クレジットチャージ実行回数, 金額を取得する.
-        :return:
-        """
-        if self.is_current(CreditChargeMainPage):
-            self.current_page = self.current_page.click_history()
-
-        if self.is_current(CreditChargeHistoryPage):
-            self._charged_count = self.current_page.text_charged_count()
-            self._charged_amount = self.current_page.text_charged_amount()
-            self.driver.back()
-            return dict(
-                charged_count=self._charged_count,
-                charged_amount=self._charged_amount
-            )
-
-    def register(self, credit: dict, profile: dict):
-        """
-        クレジットカードを登録する.
-        :param credit:
-        :param profile:
-        """
-        security_code = credit.pop('security_code')
+            self.current_page = self.current_page.click_credit_charge()
 
         if self.is_current(CreditChargeGuidePage):
             self.current_page = self.current_page.click_next()
@@ -112,128 +205,153 @@ class PyNanaco:
         if self.is_current(CreditChargeRegPage):
             self.current_page = self.current_page.click_agree()
 
-        if self.is_current(CreditChargeRegInput1Page):
-            self.current_page.input_credit_card(**credit)
-            self.current_page = self.current_page.click_next()
+        self._register_1(number, expire_month, expire_year, code, phone)
+        self._register_2(name, birth_year, birth_month, birth_day, password, mail, send_info)
 
+        sleep(3)
+
+        self._register_secure(security_code)
+
+        sleep(5)
+
+    def _register_1(self, number: str, expire_month: str, expire_year: str, code: str, phone: str):
+        if self.is_current(CreditChargeRegInput1Page):
+            self.current_page.input_credit_card(
+                number=number,
+                expire_month=expire_month,
+                expire_year=expire_year,
+                code=code
+            )
+            self.current_page.input_phone(phone=phone)
+            self.current_page = self.current_page.click_next()
+            logger.info("input credit card #" + number)
+
+    def _register_2(self, name: str, birth_year: str, birth_month: str, birth_day: str, password: str, mail: str,
+                    send_info: str):
         if self.is_current(CreditChargeRegInput2Page):
-            self.current_page.input_profile(**profile)
+            self.current_page.input_profile(
+                name=name,
+                birth_year=birth_year,
+                birth_month=birth_month,
+                birth_day=birth_day,
+                password=password,
+                mail=mail,
+                send_info=send_info
+            )
             self.current_page = self.current_page.click_next()
 
         if self.is_current(CreditChargeRegConfirmPage):
             self.current_page = self.current_page.click_confirm()
 
-            # PGSE38
-            try:
-                page = CreditChargeErrorPage(self.driver)
-                raise PyNanacoCreditChargeError(page.get_alert_msg())
-            except selenium.common.exceptions.NoSuchElementException:
-                sleep(5)
-
+    def _register_secure(self, security_code: str):
         if self.is_current(SecurePage):
-            # PGSE43
-            try:
-                self.current_page.input_secure_code(security_code)
-                self.current_page.click_send()
-                sleep(5)
-            except selenium.common.exceptions.NoSuchElementException:
-                page = CreditChargeErrorPage(self.driver)
-                raise PyNanacoCreditChargeError(page.get_alert_msg())
+            self.current_page.input_secure_code(security_code)
+            logger.info("input security code " + security_code)
+
+            # if not self._debug_mode:
+            self.current_page.click_send()
+            logger.info("click send")
 
         if self.is_current(CreditChargeRegSucceedPage):
             self.current_page.click_back_to_home()
 
-    def charge(self, value):
+    def charge(self, value: int):
         """
-        クレジットチャージを行う.
+        Charge by creadit card.
         :param value:
         """
-        if value < self._MIN_TOTAL_CHARGE_AMOUNT:
-            fmt = dict(amount=self._MIN_TOTAL_CHARGE_AMOUNT)
-            raise PyNanacoCreditChargeError('{amount}円以上にしてください.'.format(**fmt))
-        elif value > self._MAX_TOTAL_CHARGE_AMOUNT:
-            fmt = dict(amount=self._MAX_TOTAL_CHARGE_AMOUNT)
-            raise PyNanacoCreditChargeError('{amount}円以下にしてください.'.format(**fmt))
-        elif value % self._UNIT_CHARGE_AMOUNT != 0:
-            fmt = dict(amount=self._UNIT_CHARGE_AMOUNT)
-            raise PyNanacoCreditChargeError('{amount}円単位にしてください.'.format(**fmt))
+        if self.is_current(CreditChargeMainPage):
 
-        if value <= self._MAX_PER_CHARGE_AMOUNT:
-            charges = [value]
-        elif value <= self._MAX_PER_CHARGE_AMOUNT + self._MIN_TOTAL_CHARGE_AMOUNT:
-            charges = [value - self._MIN_TOTAL_CHARGE_AMOUNT, self._MIN_TOTAL_CHARGE_AMOUNT]
-        else:
-            charges = [self._MAX_PER_CHARGE_AMOUNT, value - self._MAX_PER_CHARGE_AMOUNT]
+            self.current_page = self.current_page.click_charge()
+            try:
+                self._error_handler()
+            except:
+                pass
 
-        for charge in charges:
-            if self.is_current(CreditChargeMainPage):
-                self.current_page = self.current_page.click_charge()
+            # PGSE35
+            try:
+                page = CreditChargeErrorPage(self._driver)
+                raise PyNanacoCreditChargeError(page.text_alert_msg())
+            except NoSuchElementException:
+                pass
 
-                # PGSE35
-                try:
-                    page = CreditChargeErrorPage(self.driver)
-                    raise PyNanacoCreditChargeError(page.get_alert_msg())
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass
+        if self.is_current(CreditChargeInputPage):
+            self.current_page.input_amount(value)
+            self.current_page = self.current_page.click_next()
 
-            if self.is_current(CreditChargeInputPage):
-                self.current_page.input_amount(charge)
-                self.current_page = self.current_page.click_next()
+            # P30185
+            try:
+                page = CreditChargeErrorPage(self._driver)
+                raise PyNanacoCreditChargeError(page.text_alert_msg())
+            except NoSuchElementException:
+                pass
 
-                # P30185
-                try:
-                    page = CreditChargeErrorPage(self.driver)
-                    raise PyNanacoCreditChargeError(page.get_alert_msg())
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass
+        if self.is_current(CreditChargeConfirmPage):
+            self.current_page = self.current_page.click_confirm()
 
-            if self.is_current(CreditChargeConfirmPage):
-                self.current_page = self.current_page.click_confirm()
+            # PGSE22
+            try:
+                page = CreditChargeErrorPage(self._driver)
+                raise PyNanacoCreditChargeError(page.text_alert_msg())
+            except NoSuchElementException:
+                pass
 
-                # PGSE22
-                try:
-                    page = CreditChargeErrorPage(self.driver)
-                    raise PyNanacoCreditChargeError(page.get_alert_msg())
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass
+        if self.is_current(CreditChargeSucceedPage):
+            self.current_page = self.current_page.click_back_to_top()
 
-            if self.is_current(CreditChargeSucceedPage):
-                self.current_page = self.current_page.click_back_to_top()
-
-    def cancel(self):
+    def cancel(self, password: str):
         """
-        設定されているクレジットカードを解除する.
+        Cancel registered credit card.
         """
         if self.is_current(CreditChargeMainPage):
             self.current_page = self.current_page.click_cancel()
 
         if self.is_current(CreditChargeCancelInputPage):
-            self.current_page.input_credit_charge_password(self._credit_charge_password)
+            self.current_page.input_credit_charge_password(password)
             self.current_page = self.current_page.click_next()
 
         if self.is_current(CreditChargeCancelConfirmPage):
             self.current_page = self.current_page.click_confirm()
+            logger.info("cancel succeed")
 
         if self.is_current(CreditChargeCancelSucceedPage):
             self.current_page = self.current_page.click_back_to_home()
-            return True
 
     def logout(self):
         """
-        ログアウトする.
-        :return:
+        Logout.
         """
         if self.is_current(BaseMenuPage):
             self.current_page.click_logout()
 
         if self.is_current(AfterLogoutPage):
-            return True
+            logger.info("logout.")
 
     def quit(self):
         """
-        ブラウザを終了する.
+        Quit browser.
         """
-        self.driver.quit()
+        self._driver.quit()
+        logger.info("quit.")
+
+    # TODO:
+    def _error_handler(self):
+        errors = {
+            "PGSE05": PGSE05Error,
+            "PGSE11": PGSE11Error,
+            "PGSE12": PGSE12Error,
+            "PGSE15": PGSE15Error,
+            "PGSE22": PGSE22Error,
+            "PGSE29": PGSE29Error,
+            "PGSE35": PGSE35Error,
+            "PGSE37": PGSE37Error
+        }
+
+        page = CreditChargeErrorPage(self._driver)
+
+        for k, v in errors.items():
+            if page.text_alert_msg() in k:
+                raise v
 
     @property
     def nanaco_number(self):
@@ -253,12 +371,83 @@ class PyNanaco:
 
     @property
     def credit_card(self):
-        return self._registered_credit_card
+        return self._registered_creditcard
 
 
 class PyNanacoError(Exception):
-    pass
+    def __init__(self, *args):
+        self.value = args[0]
+        logger.error(self.value)
+
+    def __str__(self):
+        return repr(self.value)
+
+    def __repr__(self):
+        print(__doc__)
 
 
 class PyNanacoCreditChargeError(PyNanacoError):
     pass
+
+
+class PGSE05Error(PyNanacoError):
+    """
+    nanacoの発行・再発行直後のため、nanacoのお申込み時にご記入いただいた情報の登録が完了しておりません。
+    そのため、nanacoクレジットチャージお申込み、登録クレジットカード情報設定変更、
+    クレジットチャージパスワード再設定ができません。
+    恐れ入りますが、カードの場合は入会から10日後、モバイルの場合は入会・機種変更から4日後に
+    クレジットチャージ申し込み等を行っていただくようお願いいたします。
+    """
+
+
+class PGSE09Error(PyNanacoError):
+    """
+    クレジットカード番号および有効期限をご確認の上、再度ご入力ください。
+    ご不明な場合は各クレジットカード会社にお問い合せください。
+    """
+
+
+class PGSE11Error(PyNanacoError):
+    """
+    ご希望のチャージ金額は、チャージ可能限度額を超えています。
+    """
+
+
+class PGSE12Error(PyNanacoError):
+    """
+    午前4時～5時の間は、システムメンテナンスの為クレジットチャージサービスをご利用いただけません。
+    """
+
+
+class PGSE15Error(PyNanacoError):
+    """
+    本日のチャージ実行回数が１日の限度回数に達しています。
+    """
+    pass
+
+
+class PGSE22Error(PyNanacoError):
+    """
+    ご指定のクレジットカードは現在ご利用になれません。ご不明な場合は各クレジットカード会社にお問合せ下さい。
+    """
+
+
+class PGSE29Error(PyNanacoError):
+    """
+    センターお預り分マネーが限度額を超えています。
+    クレジットチャージを行うには、センターお預り分マネーをお受け取りください。
+    """
+
+
+class PGSE35Error(PyNanacoError):
+    pass
+
+
+class PGSE37Error(PyNanacoError):
+    """
+    ・クレジットカード番号および有効期限をご確認のうえ、再度ご入力ください。
+    ・クレジットカード番号および有効期限に間違いがない場合、
+    本人認証サービス（J/Secure、Verified by VISA、MasterCard SecureCode）未登録の可能性がございます。
+    本人認証サービスご登録後にご利用ください。本人認証サービスへのご登録方法がご不明の場合は、
+    ご利用のクレジットカード発行会社へお問合せください。
+    """

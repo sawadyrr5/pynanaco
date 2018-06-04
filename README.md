@@ -3,14 +3,14 @@ Operating nanaco homepage by selenium+python.
 
 ## How to install
 
-```python:
+```py:*.py
 pip install git+https://github.com/sawadyrr5/PyNanaco
 ```
 
 ## How to use
 ### Register new creditcard.
 
-```python:
+```py:*.py
 from pynanaco.core import PyNanaco
 
 # set nanaco number
@@ -55,7 +55,7 @@ nanaco.quit()
 
 ### Charge.
 
-```python:
+```py:*.py
 from pynanaco.core import PyNanaco
 
 # set nanaco number
@@ -75,7 +75,7 @@ nanaco.quit()
 
 ### Cancel credit card.
 
-```python:
+```py:*.py
 from pynanaco.core import PyNanaco
 
 # set nanaco number
@@ -95,7 +95,7 @@ nanaco.quit()
 
 ### Check info
 
-```python:
+```py:*.py
 from pynanaco.core import PyNanaco
 
 # set nanaco number
@@ -123,7 +123,7 @@ nanaco.quit()
 ## Required
 
 1 - install selenium
-```python:
+```py:*.py
 pip install selenium
 ```
 

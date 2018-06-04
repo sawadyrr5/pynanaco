@@ -8,16 +8,18 @@ pip install git+https://github.com/sawadyrr5/PyNanaco
 ```
 
 ## How to use
-
+### Register new creditcard.
 
 ```python:
 from pynanaco.core import PyNanaco
 
+# set nanaco number
 param_n = {
     "nanaco_number":'7600000012345678',
     "card_number":'1234567'
     }
 
+# set personal info
 param_p = {
     "name":'john doe',
     "birth_year":'1900',
@@ -29,6 +31,7 @@ param_p = {
     "phone":'1234567890'
 }
 
+# set credit card info
 param_c = {
     "number":'1111222233334444',
     "expire_month":'01',
@@ -41,12 +44,80 @@ params = {}
 params.update(param_p)
 params.update(param_c)
 
+# register credit card
 nanaco = PyNanaco(**param_n)
 nanaco.login()
 nanaco.login_credit_charge('password')
 nanaco.register(**params)
 nanaco.logout()
 nanaco.quit()
+```
+
+### Charge.
+
+```
+from pynanaco.core import PyNanaco
+
+# set nanaco number
+param_n = {
+    "nanaco_number":'7600000012345678',
+    "card_number":'1234567'
+    }
+
+# charge
+nanaco = PyNanaco(**param_n)
+nanaco.login()
+nanaco.login_credit_charge('password')
+nanaco.charge(10000)
+nanaco.logout()
+nanaco.quit()
+```
+
+### Cancel credit card.
+
+```
+from pynanaco.core import PyNanaco
+
+# set nanaco number
+param_n = {
+    "nanaco_number":'7600000012345678',
+    "card_number":'1234567'
+    }
+
+# cancel credit card
+nanaco = PyNanaco(**param_n)
+nanaco.login()
+nanaco.login_credit_charge('password')
+nanaco.cancel('password')
+nanaco.logout()
+nanaco.quit()
+```
+
+### Check info
+
+```
+from pynanaco.core import PyNanaco
+
+# set nanaco number
+param_n = {
+    "nanaco_number":'7600000012345678',
+    "card_number":'1234567'
+    }
+
+# get info
+nanaco = PyNanaco(**param_n)
+nanaco.login()
+nanaco.login_credit_charge('password')
+
+print(
+    nanaco.registered_creditcard,
+    nanaco.balance_card,
+    nanaco.balance_center
+)
+
+nanaco.logout()
+nanaco.quit()
+
 ```
 
 [pythonでnanacoクレジットチャージできるモジュールPyNanacoを作った](http://qiita.com/sawadybomb/items/ff3c8283ae80165e7b25)

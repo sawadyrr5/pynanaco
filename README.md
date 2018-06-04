@@ -3,7 +3,7 @@ Operating nanaco homepage by selenium+python.
 
 ## How to install
 
-```
+```python:
 pip install git+https://github.com/sawadyrr5/PyNanaco
 ```
 
@@ -55,7 +55,7 @@ nanaco.quit()
 
 ### Charge.
 
-```
+```python:
 from pynanaco.core import PyNanaco
 
 # set nanaco number
@@ -75,7 +75,7 @@ nanaco.quit()
 
 ### Cancel credit card.
 
-```
+```python:
 from pynanaco.core import PyNanaco
 
 # set nanaco number
@@ -95,7 +95,7 @@ nanaco.quit()
 
 ### Check info
 
-```
+```python:
 from pynanaco.core import PyNanaco
 
 # set nanaco number
@@ -120,12 +120,10 @@ nanaco.quit()
 
 ```
 
-[pythonでnanacoクレジットチャージできるモジュールPyNanacoを作った](http://qiita.com/sawadybomb/items/ff3c8283ae80165e7b25)
-
 ## Required
 
 1 - install selenium
-```
+```python:
 pip install selenium
 ```
 

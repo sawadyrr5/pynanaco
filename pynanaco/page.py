@@ -110,6 +110,11 @@ class MenuPage(BaseMenuPage):
         element.click()
         return CreditChargePasswordAuthPage(self._driver)
 
+    def click_register_gift(self):
+        element = self._driver.find_element(*self._locator.BUTTON_REGISTER_GIFT)
+        element.click()
+        return RegisterGiftPage(self._driver)
+
     def text_balance_card(self):
         element = self._driver.find_element(*self._locator.TEXT_BALANCE_CARD)
         return int(element.text.replace('円', '').replace(',', ''))
@@ -421,3 +426,59 @@ class CreditChargeErrorPage(BasePage):
     def text_alert_msg(self):
         element = self._driver.find_element(*self._locator.ALERT)
         return element.text
+
+
+class RegisterGiftPage(BasePage):
+    _locator = RegisterGiftPageLocators
+
+    def click_next(self):
+        element = self._driver.find_element(*self._locator.BUTTON_NEXT)
+        element.click()
+        return RegisterGiftInputPage(self._driver)
+
+
+class RegisterGiftInputPage(BasePage):
+    _locator = RegisterGiftInputPageLocators
+
+    def input_giftcode(self, code):
+        element = self._driver.find_element(*self._locator.INPUT_GIFTCODE_1)
+        element.send_keys(code[0:4])
+
+        element = self._driver.find_element(*self._locator.INPUT_GIFTCODE_2)
+        element.send_keys(code[4:8])
+
+        element = self._driver.find_element(*self._locator.INPUT_GIFTCODE_3)
+        element.send_keys(code[8:12])
+
+        element = self._driver.find_element(*self._locator.INPUT_GIFTCODE_4)
+        element.send_keys(code[12:16])
+
+    def click_confirm(self):
+        element = self._driver.find_element(*self._locator.BUTTON_CONFIRM)
+        element.click()
+        return RegisterGiftConfirmPage(self._driver)
+
+
+class RegisterGiftConfirmPage(BasePage):
+    _locator = RegisterGiftConfirmPageLocators
+
+    def text_amount(self):
+        element = self._driver.find_element(*self._locator.TEXT_AMOUNT)
+        return element.text
+
+    def text_nanaco_number(self):
+        element = self._driver.find_element(*self._locator.TEXT_NANACO_NUMBER)
+        return element.text
+
+    def text_gift_id(self):
+        element = self._driver.find_element(*self._locator.TEXT_GIFT_ID)
+        return element.text
+
+    def click_register(self):
+        element = self._driver.find_element(*self._locator.BUTTON_REGISTER)
+        element.click()
+        return RegisterGiftConfirmPage(self._driver)
+
+
+class RegisterGiftAfterPage(BasePage):
+    _locator = RegisterGiftAfterPageLocators

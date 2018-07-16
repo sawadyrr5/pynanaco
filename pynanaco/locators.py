@@ -23,10 +23,35 @@ class BaseMenuPageLocators:
 
 
 class MenuPageLocators(BaseMenuPageLocators):
-    BUTTON_CREDIT_CHARGE = (By.CSS_SELECTOR, '#credit > a')
     TOP_MENU_CREDIT_CHARGE = (By.CSS_SELECTOR, '#memberNavi01 > a')
+    BUTTON_CREDIT_CHARGE = (By.CSS_SELECTOR, '#credit > a')
+    BUTTON_REGISTER_GIFT = (By.CSS_SELECTOR, '#gift > a')
     TEXT_BALANCE_CARD = (By.CSS_SELECTOR, '#memberInfoFull > div:nth-child(1) > div.moneyBox > div.fRight > p')
     TEXT_BALANCE_CENTER = (By.CSS_SELECTOR, '#memberInfoFull > div:nth-child(2) > div.moneyBox > div.fRight > p')
+
+
+class RegisterGiftPageLocators:
+    BUTTON_NEXT = (By.CSS_SELECTOR, '#register > form > p > input[type="image"]')
+
+
+class RegisterGiftInputPageLocators:
+    INPUT_GIFTCODE_1 = (By.NAME, 'id1')
+    INPUT_GIFTCODE_2 = (By.NAME, 'id2')
+    INPUT_GIFTCODE_3 = (By.NAME, 'id3')
+    INPUT_GIFTCODE_4 = (By.NAME, 'id4')
+    BUTTON_CONFIRM = (By.CSS_SELECTOR, '#submit-button')
+
+
+class RegisterGiftConfirmPageLocators:
+    TEXT_AMOUNT = (
+    By.CSS_SELECTOR, '#status > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1)')
+    TEXT_NANACO_NUMBER = (By.CSS_SELECTOR, '.form > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2)')
+    TEXT_GIFT_ID = (By.CSS_SELECTOR, '.form > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2)')
+    BUTTON_REGISTER = (By.CSS_SELECTOR, '#nav2Next > input:nth-child(2)')
+
+
+class RegisterGiftAfterPageLocators:
+    pass
 
 
 class CreditChargeGuidePageLocators(BaseMenuPageLocators):

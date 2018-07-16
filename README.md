@@ -1,17 +1,22 @@
-# About this library
-Operating nanaco homepage by selenium+python.
+# このライブラリについて
+電子マネーnanacoへのクレジットカード登録, クレジットチャージ実行, クレジットチャージ解約, ギフト登録を行います.
 
-## How to install
+## インストール方法
 
 ```py:*.py
 pip install git+https://github.com/sawadyrr5/PyNanaco
 ```
 
-## How to use
-### Register new creditcard.
+chromewebdriverが必要です
+
+## 使用方法
+### クレジットカードを登録する
 
 ```py:*.py
 from pynanaco.core import PyNanaco
+
+# set webdriver path
+CHROME_PATH = "C:\hoge\chromedriver.exe"
 
 # set nanaco number
 param_n = {
@@ -45,18 +50,21 @@ params.update(param_p)
 params.update(param_c)
 
 # register credit card
-nanaco = PyNanaco(**param_n)
-nanaco.login()
+nanaco = PyNanaco(CHROME_PATH)
+nanaco.login(**param_n)
 nanaco.login_credit_charge('password')
 nanaco.register(**params)
 nanaco.logout()
 nanaco.quit()
 ```
 
-### Charge.
+### チャージする
 
 ```py:*.py
 from pynanaco.core import PyNanaco
+
+# set webdriver path
+CHROME_PATH = "C:\hoge\chromedriver.exe"
 
 # set nanaco number
 param_n = {
@@ -65,15 +73,15 @@ param_n = {
     }
 
 # charge
-nanaco = PyNanaco(**param_n)
-nanaco.login()
+nanaco = PyNanaco(CHROME_PATH)
+nanaco.login(**param_n)
 nanaco.login_credit_charge('password')
 nanaco.charge(10000)
 nanaco.logout()
 nanaco.quit()
 ```
 
-### Cancel credit card.
+### クレジットチャージを解除する
 
 ```py:*.py
 from pynanaco.core import PyNanaco
@@ -93,10 +101,13 @@ nanaco.logout()
 nanaco.quit()
 ```
 
-### Check info
+### 情報を取得する
 
 ```py:*.py
 from pynanaco.core import PyNanaco
+
+# set webdriver path
+CHROME_PATH = "C:\hoge\chromedriver.exe"
 
 # set nanaco number
 param_n = {
@@ -105,8 +116,8 @@ param_n = {
     }
 
 # get info
-nanaco = PyNanaco(**param_n)
-nanaco.login()
+nanaco = PyNanaco(CHROME_PATH)
+nanaco.login(**param_n)
 nanaco.login_credit_charge('password')
 
 print(
@@ -120,13 +131,33 @@ nanaco.quit()
 
 ```
 
-## Required
+### ギフトコードを登録する
 
-1 - install selenium
 ```py:*.py
-pip install selenium
+from pynanaco.core import PyNanaco
+
+# set webdriver path
+CHROME_PATH = "C:\hoge\chromedriver.exe"
+
+# set nanaco number
+param_n = {
+    "nanaco_number":'7600000012345678',
+    "card_number":'1234567'
+    }
+
+# set gift code
+code='xxxxxxxxxxxxxxxx'
+
+# get info
+nanaco = PyNanaco(CHROME_PATH)
+nanaco.login(**param_n)
+nanaco.register_giftcode(code)
+nanaco.logout()
+nanaco.quit()
+
 ```
 
-2 - webdriver put into pynanaco/bin.
+## 開発履歴
 
-[chrome webdriver](https://chromedriver.storage.googleapis.com/index.html?path=2.30/)
+0.2.0 ギフトコード登録をサポート
+0.1.0 公開

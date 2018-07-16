@@ -22,10 +22,14 @@ logger.addHandler(stream_handler)
 
 class PyNanaco:
     _HOME = 'https://www.nanaco-net.jp/pc/emServlet'
-    _CHROME_LOCATION = './bin/chromedriver.exe'
 
-    def __init__(self, nanaco_number: str, card_number: str = None, password: str = None, **kwargs):
+    # _CHROME_LOCATION = 'C:\\Users\\RR4\\Documents\\pycharm\\PyNanaco\\pynanaco\\bin\\chromedriver.exe'
+
+    # def __init__(self, nanaco_number: str, card_number: str = None, password: str = None, **kwargs):
+    def __init__(self, file_path):
+
         options = webdriver.ChromeOptions()
+        # options.binary_location = file_path
 
         # headlessで動かすために必要なオプション
         # options.add_argument("--headless")
@@ -42,13 +46,14 @@ class PyNanaco:
         # options.add_argument("--ignore-certificate-errors")
         # options.add_argument("--homedir=/tmp")
 
-        self._driver = webdriver.Chrome(executable_path=self._CHROME_LOCATION, chrome_options=options)
+        self._driver = webdriver.Chrome(executable_path=file_path, chrome_options=options)
+        self._driver.get(self._HOME)
 
         self.current_page = None
 
-        self._nanaco_number = nanaco_number
-        self._card_number = card_number
-        self._password = password
+        self._nanaco_number = None
+        self._card_number = None
+        self._password = None
 
         self._credit_charge_password = None
         self._balance_card = None
@@ -57,10 +62,10 @@ class PyNanaco:
         self._charged_count = None
         self._charged_amount = None
 
-        self._debug_mode = None
-        if 'debug_mode' in kwargs.keys():
-            self._debug_mode = kwargs['debug_mode']
-            logger.debug("enabled debug mode.")
+        # self._debug_mode = None
+        # if 'debug_mode' in kwargs.keys():
+        #     self._debug_mode = kwargs['debug_mode']
+        #     logger.debug("enabled debug mode.")
 
     @property
     def balance_card(self):
@@ -90,16 +95,20 @@ class PyNanaco:
         """
         return isinstance(self.current_page, page)
 
-    def login(self):
+    def login(self, nanaco_number, card_number=None, password=None):
         """
         Login by card number or password.
         """
-        self._driver.get(self._HOME)
+        self._nanaco_number = nanaco_number
+        self._card_number = card_number
+        self._password = password
+
         self.current_page = LoginPage(self._driver)
 
         if self.is_current(LoginPage):
             if self._nanaco_number and self._card_number:
                 self.current_page = self._login_by_number()
+
             elif self._nanaco_number and self._password:
                 self.current_page = self._login_by_password()
 
@@ -118,6 +127,7 @@ class PyNanaco:
         """
         self.current_page.input_nanaco_number(self._nanaco_number)
         self.current_page.input_card_number(self._card_number)
+
         return self.current_page.click_login_by_card()
 
     def _login_by_password(self):
@@ -126,6 +136,7 @@ class PyNanaco:
         """
         self.current_page.input_nanaco_number(self._nanaco_number)
         self.current_page.input_login_password(self._password)
+
         return self.current_page.click_login_by_password()
 
     def login_credit_charge(self, password: str):
@@ -145,6 +156,7 @@ class PyNanaco:
 
                 raise PGSE12Error(msg)
                 raise PyNanacoCreditChargeError(msg)
+
             except NoSuchElementException:
                 pass
 
@@ -153,14 +165,18 @@ class PyNanaco:
                 self.current_page = CreditChargePasswordAuthPage(self._driver)
                 self.current_page.input_credit_charge_password(password)
                 self.current_page = self.current_page.click_next()
+
                 logger.info("credit card is registered.")
+
             except NoSuchElementException:
                 self.current_page = CreditChargeGuidePage(self._driver)
+
                 logger.info("credit card is not registered.")
 
             # 登録済みクレジットカード情報を取得
             if self.is_current(CreditChargeMainPage):
                 self._registered_creditcard = self.current_page.text_credit_card()
+
                 logger.info("registered credit card " + self._registered_creditcard)
 
                 self.current_page = self.current_page.click_history()
@@ -169,6 +185,7 @@ class PyNanaco:
             if self.is_current(CreditChargeHistoryPage):
                 self._charged_count = self.current_page.text_charged_count()
                 self._charged_amount = self.current_page.text_charged_amount()
+
                 logger.info("charged count " + self._charged_count)
                 logger.info("charged amount " + self._charged_amount)
 
@@ -224,6 +241,7 @@ class PyNanaco:
             )
             self.current_page.input_phone(phone=phone)
             self.current_page = self.current_page.click_next()
+
             logger.info("input credit card #" + number)
 
     def _register_2(self, name: str, birth_year: str, birth_month: str, birth_day: str, password: str, mail: str,
@@ -246,10 +264,12 @@ class PyNanaco:
     def _register_secure(self, security_code: str):
         if self.is_current(SecurePage):
             self.current_page.input_secure_code(security_code)
+
             logger.info("input security code " + security_code)
 
             # if not self._debug_mode:
             self.current_page.click_send()
+
             logger.info("click send")
 
         if self.is_current(CreditChargeRegSucceedPage):
@@ -265,6 +285,7 @@ class PyNanaco:
             self.current_page = self.current_page.click_charge()
             try:
                 self._error_handler()
+
             except:
                 pass
 
@@ -272,6 +293,7 @@ class PyNanaco:
             try:
                 page = CreditChargeErrorPage(self._driver)
                 raise PyNanacoCreditChargeError(page.text_alert_msg())
+
             except NoSuchElementException:
                 pass
 
@@ -283,6 +305,7 @@ class PyNanaco:
             try:
                 page = CreditChargeErrorPage(self._driver)
                 raise PyNanacoCreditChargeError(page.text_alert_msg())
+
             except NoSuchElementException:
                 pass
 
@@ -293,6 +316,7 @@ class PyNanaco:
             try:
                 page = CreditChargeErrorPage(self._driver)
                 raise PyNanacoCreditChargeError(page.text_alert_msg())
+
             except NoSuchElementException:
                 pass
 
@@ -312,10 +336,40 @@ class PyNanaco:
 
         if self.is_current(CreditChargeCancelConfirmPage):
             self.current_page = self.current_page.click_confirm()
+
             logger.info("cancel succeed")
 
         if self.is_current(CreditChargeCancelSucceedPage):
             self.current_page = self.current_page.click_back_to_home()
+
+    def register_giftcode(self, code):
+        """
+        Register giftcode.
+        """
+        if self.is_current(MenuPage):
+            # self.current_page = MenuPage
+            self.current_page = self.current_page.click_register_gift()
+
+            self.current_page = self.current_page.click_next()
+
+            whandles = self._driver.window_handles
+            self._driver.switch_to.window(whandles[1])
+
+            sleep(2)
+
+            self.current_page.input_giftcode(code)
+            self.current_page = self.current_page.click_confirm()
+
+            # コード誤入力
+            try:
+                logger.info("gift amount       : " + self.current_page.text_amount())
+                logger.info("gift nanaco number: " + self.current_page.text_nanaco_number())
+                logger.info("gift id           : " + self.current_page.text_gift_id())
+            except NoSuchElementException:
+                logger.error("gift code error   : " + code)
+                self.quit()
+
+            self.current_page = self.current_page.click_register()
 
     def logout(self):
         """
@@ -332,6 +386,7 @@ class PyNanaco:
         Quit browser.
         """
         self._driver.quit()
+
         logger.info("quit.")
 
     # TODO:

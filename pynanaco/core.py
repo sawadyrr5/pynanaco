@@ -23,16 +23,13 @@ logger.addHandler(stream_handler)
 class PyNanaco:
     _HOME = 'https://www.nanaco-net.jp/pc/emServlet'
 
-    # _CHROME_LOCATION = 'C:\\Users\\RR4\\Documents\\pycharm\\PyNanaco\\pynanaco\\bin\\chromedriver.exe'
-
-    # def __init__(self, nanaco_number: str, card_number: str = None, password: str = None, **kwargs):
-    def __init__(self, file_path):
+    def __init__(self, file_path, headless=False):
 
         options = webdriver.ChromeOptions()
-        # options.binary_location = file_path
 
         # headlessで動かすために必要なオプション
-        # options.add_argument("--headless")
+        if headless:
+            options.add_argument("--headless")
         # options.add_argument("--disable-gpu")
         # options.add_argument("--window-size=1280x1696")
         # options.add_argument("--disable-application-cache")
@@ -61,11 +58,6 @@ class PyNanaco:
         self._registered_creditcard = None
         self._charged_count = None
         self._charged_amount = None
-
-        # self._debug_mode = None
-        # if 'debug_mode' in kwargs.keys():
-        #     self._debug_mode = kwargs['debug_mode']
-        #     logger.debug("enabled debug mode.")
 
     @property
     def balance_card(self):
@@ -365,11 +357,10 @@ class PyNanaco:
                 logger.info("gift amount       : " + self.current_page.text_amount())
                 logger.info("gift nanaco number: " + self.current_page.text_nanaco_number())
                 logger.info("gift id           : " + self.current_page.text_gift_id())
+                self.current_page = self.current_page.click_register()
+
             except NoSuchElementException:
                 logger.error("gift code error   : " + code)
-                self.quit()
-
-            self.current_page = self.current_page.click_register()
 
     def logout(self):
         """

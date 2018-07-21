@@ -2,5 +2,4 @@ import re
 
 
 def parse_giftcode(text):
-    matches = re.findall('[A-Za-z0-9_]{16}', text)
-    return [t for t in matches if not 'NAN' in t and not '_' in t]
+    return list(set(re.findall('[A-Za-z0-9]{16}', text)) - set(re.findall('NAN[A-Z0-9]{13}', text)))

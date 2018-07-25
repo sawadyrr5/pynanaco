@@ -178,6 +178,8 @@ giftcodes = parse_giftcode(text)
 
 ## 開発履歴
 
+0.2.2 __init__にwebdriverを渡すように修正
+
 0.2.1 parse_giftcode()を修正
 
 0.2.0 ギフトコード登録をサポート

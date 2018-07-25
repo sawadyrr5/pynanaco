@@ -67,7 +67,6 @@ class LoginPage(BasePage):
         element = self._driver.find_element(*self._locator.TEXT_LOGIN_ERROR)
         print(
             element
-
         )
 
 

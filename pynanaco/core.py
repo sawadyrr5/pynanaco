@@ -23,27 +23,8 @@ logger.addHandler(stream_handler)
 class PyNanaco:
     _HOME = 'https://www.nanaco-net.jp/pc/emServlet'
 
-    def __init__(self, file_path, headless=False):
-
-        options = webdriver.ChromeOptions()
-
-        # headlessで動かすために必要なオプション
-        if headless:
-            options.add_argument("--headless")
-        # options.add_argument("--disable-gpu")
-        # options.add_argument("--window-size=1280x1696")
-        # options.add_argument("--disable-application-cache")
-        # options.add_argument("--disable-infobars")
-        # options.add_argument("--no-sandbox")
-        # options.add_argument("--hide-scrollbars")
-        # options.add_argument("--enable-logging")
-        # options.add_argument("--log-level=0")
-        # options.add_argument("--v=99")
-        # options.add_argument("--single-process")
-        # options.add_argument("--ignore-certificate-errors")
-        # options.add_argument("--homedir=/tmp")
-
-        self._driver = webdriver.Chrome(executable_path=file_path, chrome_options=options)
+    def __init__(self, driver: webdriver):
+        self._driver = driver
         self._driver.get(self._HOME)
 
         self.current_page = None
@@ -58,26 +39,6 @@ class PyNanaco:
         self._registered_creditcard = None
         self._charged_count = None
         self._charged_amount = None
-
-    @property
-    def balance_card(self):
-        return self._balance_card
-
-    @property
-    def balance_center(self):
-        return self._balance_center
-
-    @property
-    def registered_creditcard(self):
-        return self._registered_creditcard
-
-    @property
-    def charged_count(self):
-        return self._charged_count
-
-    @property
-    def charged_amount(self):
-        return self._charged_amount
 
     def is_current(self, page):
         """
@@ -147,12 +108,11 @@ class PyNanaco:
                 msg = page.text_alert_msg()
 
                 raise PGSE12Error(msg)
-                raise PyNanacoCreditChargeError(msg)
+                # raise PyNanacoCreditChargeError(msg)
 
             except NoSuchElementException:
                 pass
 
-            # クレジットチャージ未設定の場合はパスワード入力ボックスが出ない
             try:
                 self.current_page = CreditChargePasswordAuthPage(self._driver)
                 self.current_page.input_credit_charge_password(password)
@@ -161,6 +121,7 @@ class PyNanaco:
                 logger.info("credit card is registered.")
 
             except NoSuchElementException:
+                # クレジットチャージ未設定の場合はパスワード入力ボックスが出ない
                 self.current_page = CreditChargeGuidePage(self._driver)
 
                 logger.info("credit card is not registered.")
@@ -278,7 +239,7 @@ class PyNanaco:
             try:
                 self._error_handler()
 
-            except:
+            except NoSuchElementException:
                 pass
 
             # PGSE35
@@ -416,8 +377,16 @@ class PyNanaco:
         return self._balance_center
 
     @property
-    def credit_card(self):
+    def registered_creditcard(self):
         return self._registered_creditcard
+
+    @property
+    def charged_count(self):
+        return self._charged_count
+
+    @property
+    def charged_amount(self):
+        return self._charged_amount
 
 
 class PyNanacoError(Exception):

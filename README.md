@@ -94,6 +94,9 @@ nanaco.quit()
 ```py:*.py
 from pynanaco.core import PyNanaco
 
+# set webdriver path
+CHROME_PATH = "C:\hoge\chromedriver.exe"
+
 # set nanaco number
 param_n = {
     "nanaco_number":'7600000012345678',
@@ -101,8 +104,8 @@ param_n = {
     }
 
 # cancel credit card
-nanaco = PyNanaco(**param_n)
-nanaco.login()
+nanaco = PyNanaco(CHROME_PATH)
+nanaco.login(**param_n)
 nanaco.login_credit_charge('password')
 nanaco.cancel('password')
 nanaco.logout()

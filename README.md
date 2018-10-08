@@ -33,6 +33,8 @@ param_n = {
     "card_number":'1234567'
     }
 
+credit_charge_password = 'xxxxxxxxxxxxx'
+
 # set personal info
 param_p = {
     "name":'john doe',
@@ -63,7 +65,7 @@ driver = webdriver.Chrome(executable_path=CHROME_PATH)
 # register credit card
 nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
-nanaco.login_credit_charge('password')
+nanaco.login_credit_charge(credit_charge_password)
 nanaco.register(**params)
 nanaco.logout()
 nanaco.quit()
@@ -84,12 +86,14 @@ param_n = {
     "card_number":'1234567'
     }
 
+credit_charge_password = 'xxxxxxxxxxxxx'
+
 driver = webdriver.Chrome(executable_path=CHROME_PATH)
 
 # charge
 nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
-nanaco.login_credit_charge('password')
+nanaco.login_credit_charge(credit_charge_password)
 nanaco.charge(10000)
 nanaco.logout()
 nanaco.quit()
@@ -110,12 +114,14 @@ param_n = {
     "card_number":'1234567'
     }
 
+credit_charge_password = 'xxxxxxxxxxxxx'
+
 driver = webdriver.Chrome(executable_path=CHROME_PATH)
 
 # cancel credit card
 nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
-nanaco.login_credit_charge('password')
+nanaco.login_credit_charge(credit_charge_password)
 nanaco.cancel('password')
 nanaco.logout()
 nanaco.quit()
@@ -136,12 +142,14 @@ param_n = {
     "card_number":'1234567'
     }
 
+credit_charge_password = 'xxxxxxxxxxxxx'
+
 driver = webdriver.Chrome(executable_path=CHROME_PATH)
 
 # get info
 nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
-nanaco.login_credit_charge('password')
+nanaco.login_credit_charge(credit_charge_password)
 
 print(
     nanaco.registered_creditcard,

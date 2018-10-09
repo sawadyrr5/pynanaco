@@ -21,6 +21,7 @@ chromewebdriverが必要です
 ### クレジットカードを登録する
 
 ```py:*.py
+from selenium import webdriver
 from pynanaco.core import PyNanaco
 
 # set webdriver path
@@ -31,6 +32,8 @@ param_n = {
     "nanaco_number":'7600000012345678',
     "card_number":'1234567'
     }
+
+credit_charge_password = 'xxxxxxxxxxxxx'
 
 # set personal info
 param_p = {
@@ -57,10 +60,12 @@ params = {}
 params.update(param_p)
 params.update(param_c)
 
+driver = webdriver.Chrome(executable_path=CHROME_PATH)
+
 # register credit card
-nanaco = PyNanaco(CHROME_PATH)
+nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
-nanaco.login_credit_charge('password')
+nanaco.login_credit_charge(credit_charge_password)
 nanaco.register(**params)
 nanaco.logout()
 nanaco.quit()
@@ -69,6 +74,7 @@ nanaco.quit()
 ### チャージする
 
 ```py:*.py
+from selenium import webdriver
 from pynanaco.core import PyNanaco
 
 # set webdriver path
@@ -80,10 +86,14 @@ param_n = {
     "card_number":'1234567'
     }
 
+credit_charge_password = 'xxxxxxxxxxxxx'
+
+driver = webdriver.Chrome(executable_path=CHROME_PATH)
+
 # charge
-nanaco = PyNanaco(CHROME_PATH)
+nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
-nanaco.login_credit_charge('password')
+nanaco.login_credit_charge(credit_charge_password)
 nanaco.charge(10000)
 nanaco.logout()
 nanaco.quit()
@@ -92,6 +102,7 @@ nanaco.quit()
 ### クレジットチャージを解除する
 
 ```py:*.py
+from selenium import webdriver
 from pynanaco.core import PyNanaco
 
 # set webdriver path
@@ -103,10 +114,14 @@ param_n = {
     "card_number":'1234567'
     }
 
+credit_charge_password = 'xxxxxxxxxxxxx'
+
+driver = webdriver.Chrome(executable_path=CHROME_PATH)
+
 # cancel credit card
-nanaco = PyNanaco(CHROME_PATH)
+nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
-nanaco.login_credit_charge('password')
+nanaco.login_credit_charge(credit_charge_password)
 nanaco.cancel('password')
 nanaco.logout()
 nanaco.quit()
@@ -115,6 +130,7 @@ nanaco.quit()
 ### 情報を取得する
 
 ```py:*.py
+from selenium import webdriver
 from pynanaco.core import PyNanaco
 
 # set webdriver path
@@ -126,10 +142,14 @@ param_n = {
     "card_number":'1234567'
     }
 
+credit_charge_password = 'xxxxxxxxxxxxx'
+
+driver = webdriver.Chrome(executable_path=CHROME_PATH)
+
 # get info
-nanaco = PyNanaco(CHROME_PATH)
+nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
-nanaco.login_credit_charge('password')
+nanaco.login_credit_charge(credit_charge_password)
 
 print(
     nanaco.registered_creditcard,
@@ -145,6 +165,7 @@ nanaco.quit()
 ### ギフトコードを登録する
 
 ```py:*.py
+from selenium import webdriver
 from pynanaco.core import PyNanaco
 
 # set webdriver path
@@ -159,8 +180,10 @@ param_n = {
 # set gift code
 code='xxxxxxxxxxxxxxxx'
 
+driver = webdriver.Chrome(executable_path=CHROME_PATH)
+
 # get info
-nanaco = PyNanaco(CHROME_PATH)
+nanaco = PyNanaco(driver)
 nanaco.login(**param_n)
 nanaco.register_giftcode(code)
 nanaco.logout()

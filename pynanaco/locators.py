@@ -3,7 +3,8 @@ from selenium.webdriver.common.by import By
 
 
 class LoginPageLocators:
-    INPUT_NANACO_NUMBER = (By.NAME, 'XCID')
+    INPUT_NANACO_NUMBER_UPPER = (By.CSS_SELECTOR, '#login_card > table:nth-child(15) > tbody > tr:nth-child(1) > td.centerCell > input')
+    INPUT_NANACO_NUMBER_LOWER = (By.CSS_SELECTOR, '#login_password > table > tbody > tr:nth-child(1) > td.centerCell > input')
     INPUT_CARD_NUMBER = (By.NAME, 'SECURITY_CD')
     INPUT_LOGIN_PWD = (By.NAME, 'LOGIN_PWD')
 

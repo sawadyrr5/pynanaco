@@ -67,6 +67,8 @@ class PyNanaco:
 
         logger.info("login")
 
+        sleep(1)
+
         if self.is_current(MenuPage):
             self._balance_card = self.current_page.text_balance_card()
             self._balance_center = self.current_page.text_balance_center()
@@ -78,7 +80,7 @@ class PyNanaco:
         """
         :return: MenuPage
         """
-        self.current_page.input_nanaco_number(self._nanaco_number)
+        self.current_page.input_nanaco_number_upper(self._nanaco_number)
         self.current_page.input_card_number(self._card_number)
 
         return self.current_page.click_login_by_card()
@@ -87,7 +89,7 @@ class PyNanaco:
         """
         :return: MenuPage
         """
-        self.current_page.input_nanaco_number(self._nanaco_number)
+        self.current_page.input_nanaco_number_lower(self._nanaco_number)
         self.current_page.input_login_password(self._password)
 
         return self.current_page.click_login_by_password()

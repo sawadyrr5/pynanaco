@@ -431,7 +431,7 @@ class CreditChargeErrorPage(BasePage):
         return element.text
 
 
-class RegisterGiftPage(BasePage):
+class RegisterGiftPage(BaseMenuPage):
     _locator = RegisterGiftPageLocators
 
     def click_next(self):

@@ -31,7 +31,7 @@ class MenuPageLocators(BaseMenuPageLocators):
     TEXT_BALANCE_CENTER = (By.CSS_SELECTOR, '#memberInfoFull > div:nth-child(2) > div.moneyBox > div.fRight > p')
 
 
-class RegisterGiftPageLocators:
+class RegisterGiftPageLocators(BaseMenuPageLocators):
     BUTTON_NEXT = (By.CSS_SELECTOR, '#register > form > p > input[type="image"]')
 
 

@@ -305,12 +305,15 @@ class PyNanaco:
             # self.current_page = MenuPage
             self.current_page = self.current_page.click_register_gift()
 
+            sleep(1)
+
+        if self.is_current(RegisterGiftPage):
             self.current_page = self.current_page.click_next()
 
             whandles = self._driver.window_handles
             self._driver.switch_to.window(whandles[1])
 
-            sleep(2)
+            sleep(1)
 
             self.current_page.input_giftcode(code)
             self.current_page = self.current_page.click_confirm()
@@ -325,12 +328,15 @@ class PyNanaco:
             except NoSuchElementException:
                 logger.error("gift code error   : " + code)
 
+            self._driver.switch_to.window(whandles[0])
+            self.current_page = RegisterGiftPage(self._driver)
+
     def logout(self):
         """
         Logout.
         """
         if self.is_current(BaseMenuPage):
-            self.current_page.click_logout()
+            self.current_page = self.current_page.click_logout()
 
         if self.is_current(AfterLogoutPage):
             logger.info("logout.")

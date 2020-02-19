@@ -40,8 +40,12 @@ class LoginPage(BasePage):
     _locator = LoginPageLocators
     _title = 'nanaco / ログイン'
 
-    def input_nanaco_number(self, nanaco_number):
-        element = self._driver.find_element(*self._locator.INPUT_NANACO_NUMBER)
+    def input_nanaco_number_upper(self, nanaco_number):
+        element = self._driver.find_element(*self._locator.INPUT_NANACO_NUMBER_UPPER)
+        element.send_keys(nanaco_number)
+
+    def input_nanaco_number_lower(self, nanaco_number):
+        element = self._driver.find_element(*self._locator.INPUT_NANACO_NUMBER_LOWER)
         element.send_keys(nanaco_number)
 
     def input_card_number(self, card_number):
@@ -427,7 +431,7 @@ class CreditChargeErrorPage(BasePage):
         return element.text
 
 
-class RegisterGiftPage(BasePage):
+class RegisterGiftPage(BaseMenuPage):
     _locator = RegisterGiftPageLocators
 
     def click_next(self):

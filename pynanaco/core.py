@@ -67,6 +67,8 @@ class PyNanaco:
 
         logger.info("login")
 
+        sleep(1)
+
         if self.is_current(MenuPage):
             self._balance_card = self.current_page.text_balance_card()
             self._balance_center = self.current_page.text_balance_center()
@@ -78,7 +80,7 @@ class PyNanaco:
         """
         :return: MenuPage
         """
-        self.current_page.input_nanaco_number(self._nanaco_number)
+        self.current_page.input_nanaco_number_upper(self._nanaco_number)
         self.current_page.input_card_number(self._card_number)
 
         return self.current_page.click_login_by_card()
@@ -87,7 +89,7 @@ class PyNanaco:
         """
         :return: MenuPage
         """
-        self.current_page.input_nanaco_number(self._nanaco_number)
+        self.current_page.input_nanaco_number_lower(self._nanaco_number)
         self.current_page.input_login_password(self._password)
 
         return self.current_page.click_login_by_password()
@@ -303,12 +305,15 @@ class PyNanaco:
             # self.current_page = MenuPage
             self.current_page = self.current_page.click_register_gift()
 
+            sleep(1)
+
+        if self.is_current(RegisterGiftPage):
             self.current_page = self.current_page.click_next()
 
             whandles = self._driver.window_handles
             self._driver.switch_to.window(whandles[1])
 
-            sleep(2)
+            sleep(1)
 
             self.current_page.input_giftcode(code)
             self.current_page = self.current_page.click_confirm()
@@ -323,12 +328,15 @@ class PyNanaco:
             except NoSuchElementException:
                 logger.error("gift code error   : " + code)
 
+            self._driver.switch_to.window(whandles[0])
+            self.current_page = RegisterGiftPage(self._driver)
+
     def logout(self):
         """
         Logout.
         """
         if self.is_current(BaseMenuPage):
-            self.current_page.click_logout()
+            self.current_page = self.current_page.click_logout()
 
         if self.is_current(AfterLogoutPage):
             logger.info("logout.")

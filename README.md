@@ -12,7 +12,7 @@ selenium 3.11.0
 ## インストール方法
 
 ```py:*.py
-pip install git+https://github.com/sawadyrr5/PyNanaco
+pip install git+https://github.com/sawadyrr5/pynanaco
 ```
 
 chromewebdriverが必要です
